@@ -339,7 +339,6 @@ void printTasksForDay(struct years* calendar_head, int year, int month, int day)
 }
 
 // FIXED printMonthCalendar: always use ONE year pointer (so stars are accurate)
-// FIXED printMonthCalendar: always use ONE year pointer (so stars are accurate)
 void printMonthCalendar(struct years* calendar_head, int year, int month) {
 
     if (month < 1 || month > 12) {
@@ -359,13 +358,39 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
 
     const char* month_title = year_node->months[month - 1].month_name;
 
-    printf("\n%s %d\n", month_title, year);
+    const int calendar_width = 28;
+
+    // Calculate the number of digits in the year
+    int year_digits = 0;
+    int temp_year = year;
+    if (temp_year == 0) {
+        year_digits = 1;
+    }
+    else {
+        while (temp_year != 0) {
+            temp_year /= 10;
+            year_digits++;
+        }
+    }
+
+    // Calculate total title length: "Month" + " " + "Year"
+    int title_len = (int)strlen(month_title) + 1 + year_digits;
+    int offset = (calendar_width - title_len) / 2;
+
+    // Print the left padding
+    for (int i = 0; i < offset; i++) {
+        printf(" ");
+    }
+    // Print the title components separately
+    printf("%s %d\n", month_title, year);
+    printf("_____________________________\n");
     // Adjusted header spacing to match the 3-character cell width
-    printf("Su  Mo  Tu  We  Th  Fr  Sa\n");
+    printf("|Su |Mo |Tu |We |Th |Fr |Sa |\n");
+    printf("|___|___|___|___|___|___|___|\n|");
 
     // Print leading spaces for the first week
     for (int i = 0; i < firstWeekday; i++) {
-        printf("    "); // 3 spaces for each empty day
+        printf("   |"); // 3 spaces for each empty day
     }
 
     // Print each day of the month
@@ -373,8 +398,14 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
         int has_task = (year_node->months[month - 1].days[d - 1].tasks_head != NULL);
 
         // Each day cell is 3 characters wide
-        if (has_task) {
+        if (has_task && d < 10) {
+            printf("%1d* ", d);
+        }
+        else if (has_task) {
             printf("%2d*", d);
+        }
+        else if (!has_task && d < 10) {
+            printf("%1d  ", d);
         }
         else {
             printf("%2d ", d);
@@ -382,15 +413,29 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
 
         // If it's the last day of the week (Saturday), print a newline
         if ((firstWeekday + d - 1) % 7 == 6) {
-            printf("\n");
+            printf("|\n");
+            // Only print the next row if it's not the end of the calendar
+            if (d < nDays) {
+                printf("|___|___|___|___|___|___|___|\n|");
+            }
         }
         // Otherwise, print a single space to separate the days
         else {
-            printf(" ");
+            printf("|");
         }
     }
 
-    printf("\n\n* = day has one or more tasks.\n\n");
+    // Add trailing empty cells for the last week
+    int lastDayWeekday = (firstWeekday + nDays - 1) % 7;
+    if (lastDayWeekday != 6) {
+        for (int i = lastDayWeekday; i < 6; i++) {
+            printf("   |");
+        }
+        printf("\n");
+    }
+
+    printf("|___|___|___|___|___|___|___|\n");
+    printf("\n* = day has one or more tasks.\n\n");
 }
 void printTasksForMonthPretty(struct years* calendar_head, int year, int month) {
 
