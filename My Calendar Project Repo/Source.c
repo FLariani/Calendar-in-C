@@ -377,6 +377,7 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
     int title_len = (int)strlen(month_title) + 1 + year_digits;
     int offset = (calendar_width - title_len) / 2;
 
+    printf("\n");
     // Print the left padding
     for (int i = 0; i < offset; i++) {
         printf(" ");
@@ -756,6 +757,7 @@ void menu(struct years** calendar_head) {
         printf("5. Search tasks\n");
         printf("6. View all tasks for a month\n");
         printf("7. View all tasks for a year\n");
+        printf("8. Show Calendar for a year\n");
         printf("0. Save and exit\n");
         printf("Choice: ");
 
@@ -877,8 +879,44 @@ void menu(struct years** calendar_head) {
             }
 
             printTasksForYearPretty(*calendar_head, y);
-}
+        }
 
+        else if (choice == 8) {
+            int y;
+            printf("Enter year (e.g. 2025): ");
+            if (scanf_s("%d", &y) != 1) {
+                printf("Invalid input.\n");
+                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+                continue;
+            }
+            // Calculate the number of digits in the year
+            int calendar_width = 28;
+            int year_digits = 0;
+            int temp_year = y;
+            if (temp_year == 0) {
+                year_digits = 1;
+            }
+            else {
+                while (temp_year != 0) {
+                    temp_year /= 10;
+                    year_digits++;
+                }
+            }
+
+            // Calculate total title length
+            int title_len = year_digits;
+            int offset = (calendar_width - title_len -18) / 2;
+            printf("\n");
+
+            // Print the left padding
+            for (int i = 0; i < offset; i++) {
+                printf(" ");
+            }
+            printf("===Calendar of %d===\n", y);
+            for (int m = 1; m < 13; m++) {
+                printMonthCalendar(*calendar_head, y, m);
+            }
+        }
 
         else if (choice == 0) {
             printf("Saving and exiting...\n");
