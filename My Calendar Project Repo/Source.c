@@ -358,7 +358,7 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
 
     const char* month_title = year_node->months[month - 1].month_name;
 
-    const int calendar_width = 28;
+    const int calendar_width = 31;
 
     // Calculate the number of digits in the year
     int year_digits = 0;
@@ -376,7 +376,10 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
     // Calculate total title length: "Month" + " " + "Year"
     int title_len = (int)strlen(month_title) + 1 + year_digits;
     int offset = (calendar_width - title_len) / 2;
-
+    
+    if (calendar_width - title_len % 2 != 0) {
+        offset--;
+    }
     printf("\n");
     // Print the left padding
     for (int i = 0; i < offset; i++) {
@@ -890,7 +893,7 @@ void menu(struct years** calendar_head) {
                 continue;
             }
             // Calculate the number of digits in the year
-            int calendar_width = 28;
+            int calendar_width = 31;
             int year_digits = 0;
             int temp_year = y;
             if (temp_year == 0) {
@@ -903,10 +906,22 @@ void menu(struct years** calendar_head) {
                 }
             }
 
+            // This will create the year if it's not already loaded.
+            struct years* year_node = findOrAddYear(calendar_head, y);
+
+            // Check if the year was created successfully (it could fail on memory allocation).
+            if (!year_node) {
+                printf("Error: Could not create or find calendar for year %d.\n", y);
+                continue; // Go back to the menu
+            }
+
             // Calculate total title length
             int title_len = year_digits;
-            int offset = (calendar_width - title_len -18) / 2;
+            int offset = (calendar_width - title_len - 18) / 2;
             printf("\n");
+            if (calendar_width - title_len % 2 != 0) {
+                offset--;
+            }
 
             // Print the left padding
             for (int i = 0; i < offset; i++) {
