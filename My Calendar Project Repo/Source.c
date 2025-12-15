@@ -359,13 +359,13 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
 
     const char* month_title = year_node->months[month - 1].month_name;
 
-    printf("\n   %s %d\n", month_title, year);
+    printf("\n%s %d\n", month_title, year);
     // Adjusted header spacing to match the 3-character cell width
-    printf(" Su Mo Tu We Th Fr Sa\n");
+    printf("Su  Mo  Tu  We  Th  Fr  Sa\n");
 
     // Print leading spaces for the first week
     for (int i = 0; i < firstWeekday; i++) {
-        printf("   "); // 3 spaces for each empty day
+        printf("    "); // 3 spaces for each empty day
     }
 
     // Print each day of the month
