@@ -244,6 +244,17 @@ int listTasksForDayNode(struct days* day_node) {
     }
     return count;
 }
+void renumberTasks(struct days* day_node) {
+    if (!day_node) return;
+
+    int id = 1;
+    struct tasks* t = day_node->tasks_head;
+    while (t != NULL) {
+        t->task_id = id++;
+        t = t->next;
+    }
+}
+
 
 // delete a task by task_id from a specific date
 int deleteTask(struct years* calendar_head, int year, int month, int day, int task_id) {
@@ -289,11 +300,9 @@ int deleteTask(struct years* calendar_head, int year, int month, int day, int ta
     free(curr->task_description);
     free(curr);
 
-    /*
-      Note:
-      This may leave gaps in task_id (like 1,2,4). That's totally fine.
-      If you want sequential renumbering after delete, we can add that too.
-    */
+    // keeps task ids clean (1..N) after deletes
+    renumberTasks(day_node);
+
     printf("Deleted task %d from %d-%02d-%02d.\n", task_id, year, month, day);
     return 1;
 }
