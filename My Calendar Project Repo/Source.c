@@ -377,6 +377,121 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
 
     printf("\n\n* = day has one or more tasks.\n\n");
 }
+void printTasksForMonthPretty(struct years* calendar_head, int year, int month) {
+
+    // basic validation
+    if (month < 1 || month > 12) {
+        printf("Invalid month.\n");
+        return;
+    }
+
+    // find year node
+    struct years* year_node = calendar_head;
+    while (year_node != NULL && year_node->year_number != year) {
+        year_node = year_node->next;
+    }
+
+    if (!year_node) {
+        printf("No data for year %d.\n", year);
+        return;
+    }
+
+    struct months* month_node = &year_node->months[month - 1];
+
+    printf("\n=== %s %d ===\n", month_node->month_name, year);
+
+    int found_any = 0;
+
+    for (int d = 0; d < month_node->num_days; d++) {
+
+        struct days* day_node = &month_node->days[d];
+        struct tasks* t = day_node->tasks_head;
+
+        if (t != NULL) {
+            found_any = 1;
+
+            // Day header: "29 (Saturday):"
+            printf("%2d (%s): ", day_node->day_number, day_node->day_name);
+
+            // Print all tasks on one line, comma-separated
+            while (t != NULL) {
+                printf("%s", t->task_description);
+                if (t->next != NULL) {
+                    printf(", ");
+                }
+                t = t->next;
+            }
+
+            printf("\n");
+        }
+    }
+
+    if (!found_any) {
+        printf("No tasks stored for %s %d.\n", month_node->month_name, year);
+    }
+
+    printf("\n");
+}
+
+void printTasksForYearPretty(struct years* calendar_head, int year) {
+
+    // find year node
+    struct years* year_node = calendar_head;
+    while (year_node != NULL && year_node->year_number != year) {
+        year_node = year_node->next;
+    }
+
+    if (!year_node) {
+        printf("No data for year %d.\n", year);
+        return;
+    }
+
+    printf("\n=== Tasks for %d ===\n", year);
+
+    int found_any = 0;
+
+    for (int m = 0; m < 12; m++) {
+
+        struct months* month_node = &year_node->months[m];
+        int month_printed = 0;  // so we only print the month header if it has tasks
+
+        for (int d = 0; d < month_node->num_days; d++) {
+
+            struct days* day_node = &month_node->days[d];
+            struct tasks* t = day_node->tasks_head;
+
+            if (t != NULL) {
+                found_any = 1;
+
+                // print month header once, the first time we hit a day with tasks
+                if (!month_printed) {
+                    printf("\n-- %s --\n", month_node->month_name);
+                    month_printed = 1;
+                }
+
+                // day line: "29 (Saturday): Task A, Task B"
+                printf("%2d (%s): ", day_node->day_number, day_node->day_name);
+
+                while (t != NULL) {
+                    printf("%s", t->task_description);
+                    if (t->next != NULL) {
+                        printf(", ");
+                    }
+                    t = t->next;
+                }
+                printf("\n");
+            }
+        }
+    }
+
+    if (!found_any) {
+        printf("No tasks stored for %d.\n", year);
+    }
+
+    printf("\n");
+}
+
+
 
 // =====================
 // SEARCH FEATURE
@@ -579,6 +694,8 @@ void menu(struct years** calendar_head) {
         printf("3. View tasks for a specific day\n");
         printf("4. Delete a task\n");
         printf("5. Search tasks\n");
+        printf("6. View all tasks for a month\n");
+        printf("7. View all tasks for a year\n");
         printf("0. Save and exit\n");
         printf("Choice: ");
 
@@ -676,6 +793,33 @@ void menu(struct years** calendar_head) {
 
             searchTasks(*calendar_head, keyword);
         }
+        else if (choice == 6) {
+
+            int y, m;
+            printf("Enter year and month (e.g. 2025 11): ");
+            if (scanf_s("%d %d", &y, &m) != 2) {
+                printf("Invalid input.\n");
+                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+                continue;
+            }
+
+            printTasksForMonthPretty(*calendar_head, y, m);
+        }
+
+        else if (choice == 7) {
+
+            int y;
+            printf("Enter year (e.g. 2025): ");
+            if (scanf_s("%d", &y) != 1) {
+                printf("Invalid input.\n");
+                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+                continue;
+            }
+
+            printTasksForYearPretty(*calendar_head, y);
+}
+
+
         else if (choice == 0) {
             printf("Saving and exiting...\n");
         }
