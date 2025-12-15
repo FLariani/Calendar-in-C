@@ -339,6 +339,7 @@ void printTasksForDay(struct years* calendar_head, int year, int month, int day)
 }
 
 // FIXED printMonthCalendar: always use ONE year pointer (so stars are accurate)
+// FIXED printMonthCalendar: always use ONE year pointer (so stars are accurate)
 void printMonthCalendar(struct years* calendar_head, int year, int month) {
 
     if (month < 1 || month > 12) {
@@ -359,20 +360,34 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
     const char* month_title = year_node->months[month - 1].month_name;
 
     printf("\n   %s %d\n", month_title, year);
-    printf("Su Mo Tu We Th Fr Sa\n");
+    // Adjusted header spacing to match the 3-character cell width
+    printf(" Su Mo Tu We Th Fr Sa\n");
 
+    // Print leading spaces for the first week
     for (int i = 0; i < firstWeekday; i++) {
-        printf("   ");
+        printf("   "); // 3 spaces for each empty day
     }
 
+    // Print each day of the month
     for (int d = 1; d <= nDays; d++) {
         int has_task = (year_node->months[month - 1].days[d - 1].tasks_head != NULL);
 
-        if (has_task) printf("%2d*", d);
-        else          printf("%2d ", d);
+        // Each day cell is 3 characters wide
+        if (has_task) {
+            printf("%2d*", d);
+        }
+        else {
+            printf("%2d ", d);
+        }
 
-        if ((firstWeekday + d - 1) % 7 == 6) printf("\n");
-        else                                 printf(" ");
+        // If it's the last day of the week (Saturday), print a newline
+        if ((firstWeekday + d - 1) % 7 == 6) {
+            printf("\n");
+        }
+        // Otherwise, print a single space to separate the days
+        else {
+            printf(" ");
+        }
     }
 
     printf("\n\n* = day has one or more tasks.\n\n");
@@ -836,13 +851,39 @@ void menu(struct years** calendar_head) {
 
 int main(void) {
 
-    // load existing calendar from disk if it exists
+    // Load existing calendar from disk if it exists
     struct years* calendar = loadTasks("tasks.txt");
+
+    // If no calendar is loaded, prompt for the initial year to create
+    if (!calendar) {
+        printf("No calendar file found or file is empty.\n");
+        int start_year = 0;
+        printf("What year would you like to start with? ");
+
+        // Input validation loop to ensure a valid year is entered
+        while (scanf_s("%d", &start_year) != 1 || start_year < 1) {
+            printf("Invalid input. Please enter a valid year (e.g., 2025): ");
+            // Clear the input buffer in case of non-numeric input
+            int ch;
+            while ((ch = getchar()) != '\n' && ch != EOF);
+        }
+
+        // Create the initial year structure based on user input
+        findOrAddYear(&calendar, start_year);
+
+        // Save the newly created year immediately to ensure it persists
+        if (!saveTasks("tasks.txt", calendar)) {
+            printf("Error: Could not save initial calendar file.\n");
+        }
+        else {
+            printf("Calendar for %d created and saved.\n", start_year);
+        }
+    }
 
     // run UI
     menu(&calendar);
 
-    // save back to disk
+    // save back to disk on exit
     if (!saveTasks("tasks.txt", calendar)) {
         printf("Error saving tasks to file.\n");
     }

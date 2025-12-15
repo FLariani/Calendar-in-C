@@ -6,7 +6,62 @@
 #include <string>
 
 extern "C" {
-#include "C:\Users\Farah\source\repos\My Calendar Project\My Calendar Project Repo\Calendar.h"
+    struct years;
+    struct months;
+    struct days;
+    struct tasks;
+
+    struct years {
+        int year_number;
+        struct months* months;
+        struct years* next;
+    };
+
+    struct months {
+        int month_number;
+        const char* month_name;
+        struct days* days;
+        int num_days;
+    };
+
+    struct days {
+        int day_number;
+        const char* day_name;
+        struct tasks* tasks_head;
+    };
+
+    struct tasks {
+        int task_id;
+        char* task_description;
+        struct tasks* next;
+        struct tasks* prev;
+        struct tasks* loop;
+    };
+
+    // date helpers
+    int dayOfWeek(int year, int month, int day);
+    int isLeap(int year);
+    int daysInMonth(int year, int month);
+
+    // calendar creation
+    struct years* findOrAddYear(struct years** calendar_head, int year_number);
+
+    // task ops
+    void addTask(struct years** calendar_head, int year, int month, int day, const char* desc);
+    struct days* getDayNode(struct years* calendar_head, int year, int month, int day);
+    int listTasksForDayNode(struct days* day_node);
+    int deleteTask(struct years* calendar_head, int year, int month, int day, int task_id);
+
+    // search helpers
+    int containsIgnoreCase(const char* text, const char* key);
+    void searchTasks(struct years* calendar_head, const char* keyword); // prints results
+
+    // file I/O
+    struct years* loadTasks(const char* filename);
+    int saveTasks(const char* filename, struct years* calendar_head);
+
+    // memory cleanup
+    void freeCalendar(struct years* calendar_head);
 }
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -86,7 +141,7 @@ namespace CalendarAppTests
 
         TEST_METHOD(DayOfWeek_StableSanityChecks)
         {
-            // This is a sanity check, not “calendar authority”.
+            // This is a sanity check, not ï¿½calendar authorityï¿½.
             // Just making sure return range is always 0..6 and consistent.
             int w1 = dayOfWeek(2025, 12, 15);
             Assert::IsTrue(w1 >= 0 && w1 <= 6);
