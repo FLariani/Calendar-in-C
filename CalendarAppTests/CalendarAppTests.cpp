@@ -64,7 +64,7 @@ extern "C" {
     // memory cleanup
     void freeCalendar(struct years* calendar_head);
 }
-
+//Note: All of the the tests were coded cooperatively
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace CalendarAppTests

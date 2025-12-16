@@ -43,6 +43,7 @@ struct tasks {
 // DATE HELPERS
 // =====================
 
+//Main Contributor: Farah Laniari
 int dayOfWeek(int year, int month, int day) {
     // offset values for each month (this is a standard trick to compute weekday fast)
     static int month_offsets[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
@@ -59,11 +60,14 @@ int dayOfWeek(int year, int month, int day) {
     return day_of_week; // 0=Sunday ... 6=Saturday
 }
 
+//Main Contributor: Farah Laniari
 int isLeap(int year) {
     // leap year rules: divisible by 4, but not 100 unless also divisible by 400
     return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0));
 }
 
+//Main Contributor: Farah Laniari
+//Main Editor: Damian Wilson
 int daysInMonth(int year, int month) {
     // returns the correct number of days for that month (handles leap Feb)
     switch (month) {
@@ -72,7 +76,12 @@ int daysInMonth(int year, int month) {
     case 4: case 6: case 9: case 11:
         return 30;
     case 2:
-        return isLeap(year) ? 29 : 28;
+        if (isLeap(year)) {
+            return 29;
+        }
+        else {
+            return 28;
+        }
     default:
         return 0; // invalid month
     }
@@ -83,6 +92,7 @@ int daysInMonth(int year, int month) {
 // =====================
 
 // finds a year in the list, or creates it if missing
+//Main Contributor: Damian Wilson
 struct years* findOrAddYear(struct years** calendar_head, int year_number) {
 
     // static arrays so we don't recreate strings every call
@@ -162,6 +172,8 @@ struct years* findOrAddYear(struct years** calendar_head, int year_number) {
 // =====================
 
 // adds a task to the chosen date (year/month/day)
+//Main Contributor: Farah Laniari
+//Main Editors: Damian Wilson and Sierra Jamieson
 void addTask(struct years** calendar_head, int year, int month, int day, const char* desc) {
 
     // make sure that year exists (create if needed)
@@ -226,6 +238,8 @@ void addTask(struct years** calendar_head, int year, int month, int day, const c
 }
 
 // helper: find day node safely (used by delete + search UI + menu)
+//Main Contributor: Farah Laniari
+//Main Editor: Damian Wilson
 struct days* getDayNode(struct years* calendar_head, int year, int month, int day) {
 
     // find the year first
@@ -246,6 +260,8 @@ struct days* getDayNode(struct years* calendar_head, int year, int month, int da
 }
 
 // prints tasks for a day node with IDs so user can pick one
+//Main Contributor: Sierra Jamieson
+//Main Editor: Damian Wilson and Farah Laniari
 int listTasksForDayNode(struct days* day_node) {
 
     // checks if day_node exists and has tasks
@@ -269,6 +285,7 @@ int listTasksForDayNode(struct days* day_node) {
 }
 
 // helper function: renumber tasks after deletion so IDs stay clean (1..N)
+//Main Contributor: Farah Laniari
 void renumberTasks(struct days* day_node) {
     if (!day_node) return;
 
@@ -283,6 +300,8 @@ void renumberTasks(struct days* day_node) {
 
 // update a task's description by its task_id
 // returns 0 on success, 1 on error (kept simple for menu logic)
+//Main Contributor: Damian Wilson
+//Main Editor: Sierra Jamieson
 int updateTask(struct years* calendar_head, int year, int month, int day, int task_id, const char* new_desc) {
 
     struct days* day_node = getDayNode(calendar_head, year, month, day);
@@ -328,6 +347,8 @@ int updateTask(struct years* calendar_head, int year, int month, int day, int ta
 }
 
 // delete a task by task_id from a specific date
+//Main Contributor: Farah Laniari
+//Main Editor: Damian Wilson
 int deleteTask(struct years* calendar_head, int year, int month, int day, int task_id) {
 
     struct days* day_node = getDayNode(calendar_head, year, month, day);
@@ -385,6 +406,8 @@ int deleteTask(struct years* calendar_head, int year, int month, int day, int ta
 // =====================
 
 // prints all tasks for one specific date
+//Main Contributor: Sierra Jamieson
+//Main Editor: Damian Wilson
 void printTasksForDay(struct years* calendar_head, int year, int month, int day) {
 
     // find year
@@ -425,6 +448,8 @@ void printTasksForDay(struct years* calendar_head, int year, int month, int day)
 }
 
 // compact month view: prints only days with tasks, and puts tasks on one line
+//Main Contributor: Sierra Jamieson
+//Main Editor: Farah Laniari
 void printTasksForMonthPretty(struct years* calendar_head, int year, int month) {
 
     if (month < 1 || month > 12) {
@@ -481,6 +506,8 @@ void printTasksForMonthPretty(struct years* calendar_head, int year, int month) 
 }
 
 // compact year view: groups by month, prints only days that have tasks
+//Main Contributor: Sierra Jamieson
+//Main Editor: Farah Laniari
 void printTasksForYearPretty(struct years* calendar_head, int year) {
 
     // find year node
@@ -546,6 +573,8 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
 }
 
 // prints a month in an ASCII grid, and marks days with tasks using '*'
+//Main Contributors: Farah Laniari
+//Main Editor: Damian Wilson
 void printMonthCalendar(struct years* calendar_head, int year, int month) {
 
     if (month < 1 || month > 12) {
@@ -660,6 +689,8 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
 // =====================
 
 // simple case-insensitive "contains" check (no libraries needed)
+//Main Contributor: Farah Laniari
+//Main Editor: Damian Wilson
 int containsIgnoreCase(const char* text, const char* key) {
     if (!text || !key) return 0;
 
@@ -704,6 +735,7 @@ int containsIgnoreCase(const char* text, const char* key) {
 
 // keyword search across every loaded year/month/day
 // prints matches with the date so the user can actually find them again
+//Main Contributor: Farah Laniari
 void searchTasks(struct years* calendar_head, const char* keyword) {
 
     if (!keyword || keyword[0] == '\0') {
@@ -765,8 +797,8 @@ void searchTasks(struct years* calendar_head, const char* keyword) {
 // 1 1 New Year's Day
 //
 // We intentionally do NOT store task_id because addTask() rebuilds them.
-//
 
+//Main Contributor: Damian Wilson and Farah Laniari
 struct years* loadTasks(const char* filename) {
 
     FILE* fp;
@@ -808,6 +840,7 @@ struct years* loadTasks(const char* filename) {
     return calendar_head;
 }
 
+//Main Contributor: Damian Wilson and Farah Laniari
 int saveTasks(const char* filename, struct years* calendar_head) {
 
     FILE* fp;
@@ -852,6 +885,7 @@ int saveTasks(const char* filename, struct years* calendar_head) {
 // =====================
 
 // frees every task, then days arrays, then months array, then years list
+//Main Contributor: Damian Wilson
 void freeCalendar(struct years* calendar_head) {
 
     struct years* current_year = calendar_head;
@@ -890,7 +924,8 @@ void freeCalendar(struct years* calendar_head) {
 // =====================
 // MENU / UI
 // =====================
-
+//Main Contributor: Sierra Jamieson
+//Main Editors: Farah Laniari and Damian Wilson
 void menu(struct years** calendar_head) {
 
     int choice;
@@ -1171,7 +1206,7 @@ void menu(struct years** calendar_head) {
 // =====================
 // MAIN
 // =====================
-
+//All Contributed
 int main(void) {
 
     // Load existing calendar from disk if it exists
