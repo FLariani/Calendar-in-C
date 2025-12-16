@@ -34,7 +34,6 @@ struct tasks {
     char* task_description;
     struct tasks* next;
     struct tasks* prev;
-    struct tasks* loop;
 };
 
 // =====================
@@ -188,7 +187,6 @@ void addTask(struct years** calendar_head, int year, int month, int day, const c
     strcpy_s(new_task->task_description, desc_len, desc);
     new_task->next = NULL;
     new_task->prev = NULL;
-    new_task->loop = NULL;
 
     // add to end of that day's list, assign sequential id
     if (day_node->tasks_head == NULL) {
@@ -201,7 +199,7 @@ void addTask(struct years** calendar_head, int year, int month, int day, const c
             current_task = current_task->next;
         }
 
-        // simple + clear: next ID is the last node's id + 1
+        // next ID is the last node's id + 1
         new_task->task_id = current_task->task_id + 1;
         current_task->next = new_task;
         new_task->prev = current_task;
@@ -210,7 +208,7 @@ void addTask(struct years** calendar_head, int year, int month, int day, const c
     printf("Task added for %d-%02d-%02d.\n", year, month, day);
 }
 
-// helper: find day node safely (used by delete + search UI)
+// helper: find day node safely (used by delete + search UI + menu)
 struct days* getDayNode(struct years* calendar_head, int year, int month, int day) {
 
     struct years* year_node = calendar_head;
@@ -230,28 +228,36 @@ struct days* getDayNode(struct years* calendar_head, int year, int month, int da
 // prints tasks for a day node with IDs so user can pick one
 int listTasksForDayNode(struct days* day_node) {
 
+    //checks if day_node is not allocated or has no tasks
     if (!day_node || !day_node->tasks_head) {
+
         printf("No tasks for this day.\n");
         return 0;
     }
 
+    //count for testing
     int count = 0;
-    struct tasks* t = day_node->tasks_head;
-    while (t != NULL) {
-        printf(" %d. %s\n", t->task_id, t->task_description);
+    //cycles through task nodes
+    struct tasks* viewTaskNode = day_node->tasks_head;
+    while (viewTaskNode != NULL) {
+
+        printf(" %d. %s\n", viewTaskNode->task_id, viewTaskNode->task_description);
         count++;
-        t = t->next;
+        viewTaskNode = viewTaskNode->next;
     }
     return count;
 }
+//helper function for deleting tasks
 void renumberTasks(struct days* day_node) {
     if (!day_node) return;
 
+    //id for sequencial ordering
     int id = 1;
-    struct tasks* t = day_node->tasks_head;
-    while (t != NULL) {
-        t->task_id = id++;
-        t = t->next;
+    //cycles through tasks to reorder task_id
+    struct tasks* numberTasks = day_node->tasks_head;
+    while (numberTasks != NULL) {
+        numberTasks->task_id = id++;
+        numberTasks = numberTasks->next;
     }
 }
 // update a task's description by its task_id
@@ -273,6 +279,7 @@ int updateTask(struct years* calendar_head, int year, int month, int day, int ta
         updateDay = updateDay->next;
     }
 
+    //checks for invalid task id
     if (!updateDay) {
 
         printf("Task %d not found on %d-%02d-%02d.\n", task_id, year, month, day);
@@ -296,6 +303,7 @@ int updateTask(struct years* calendar_head, int year, int month, int day, int ta
         return 1;
     }
 
+    //updates task decription
     strcpy_s(updateDay->task_description, desc_len, new_desc);
 
     printf("Updated task %d on %d-%02d-%02d.\n", task_id, year, month, day);
@@ -313,38 +321,42 @@ int deleteTask(struct years* calendar_head, int year, int month, int day, int ta
         return 0;
     }
 
+    //checks if there are tasks
     if (!day_node->tasks_head) {
         printf("No tasks to delete for %d-%02d-%02d.\n", year, month, day);
         return 0;
     }
 
     // find the node with the matching id
-    struct tasks* curr = day_node->tasks_head;
-    while (curr != NULL && curr->task_id != task_id) {
-        curr = curr->next;
+    struct tasks* deleteTask = day_node->tasks_head;
+    //cycles through nodes to check if user inputed task id matches
+    while (deleteTask != NULL && deleteTask->task_id != task_id) {
+        deleteTask = deleteTask->next;
     }
 
-    if (!curr) {
+    //checks if all nodes didnt match user inputed task id
+    if (!deleteTask) {
         printf("Task %d not found on %d-%02d-%02d.\n", task_id, year, month, day);
         return 0;
     }
 
     // unlink from doubly linked list
-    if (curr->prev != NULL) {
-        curr->prev->next = curr->next;
+    if (deleteTask->prev != NULL) {
+        deleteTask->prev->next = deleteTask->next;
     }
     else {
         // deleting head
-        day_node->tasks_head = curr->next;
+        day_node->tasks_head = deleteTask->next;
     }
 
-    if (curr->next != NULL) {
-        curr->next->prev = curr->prev;
+    //reorders doubly linked list prev for the next nodes if it is not NULL
+    if (deleteTask->next != NULL) {
+        deleteTask->next->prev = deleteTask->prev;
     }
 
     // free heap memory
-    free(curr->task_description);
-    free(curr);
+    free(deleteTask->task_description);
+    free(deleteTask);
 
     // keeps task ids clean (1..N) after deletes
     renumberTasks(day_node);
@@ -365,28 +377,34 @@ void printTasksForDay(struct years* calendar_head, int year, int month, int day)
         year_node = year_node->next;
     }
 
+    //checks for valid months
     if (!year_node || month < 1 || month > 12) {
         printf("No tasks for %d-%02d-%02d.\n", year, month, day);
         return;
     }
 
+    //checks for valid days
     struct months* month_node = &year_node->months[month - 1];
     if (day < 1 || day > month_node->num_days) {
         printf("No tasks for %d-%02d-%02d.\n", year, month, day);
         return;
     }
 
+    //initializes task and day node to user input-1 for index and task node to head
     struct days* day_node = &month_node->days[day - 1];
     struct tasks* task_node = day_node->tasks_head;
 
+    //checks for no tasks in day
     if (task_node == NULL) {
         printf("No tasks for %d-%02d-%02d.\n", year, month, day);
         return;
     }
-
+    
+    //prints all information inside the node
     printf("Tasks for %s, %s %d, %d:\n",
         day_node->day_name, month_node->month_name, day, year);
 
+    //cycles through all the nodes in that day
     while (task_node != NULL) {
         printf(" %d. %s\n", task_node->task_id, task_node->task_description);
         task_node = task_node->next;
