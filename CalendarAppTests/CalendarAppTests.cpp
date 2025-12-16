@@ -50,6 +50,7 @@ extern "C" {
     void addTask(struct years** calendar_head, int year, int month, int day, const char* desc);
     struct days* getDayNode(struct years* calendar_head, int year, int month, int day);
     int listTasksForDayNode(struct days* day_node);
+    int updateTask(struct years* calendar_head, int year, int month, int day, int task_id, const char* new_desc);
     int deleteTask(struct years* calendar_head, int year, int month, int day, int task_id);
 
     // search helpers
@@ -250,6 +251,84 @@ namespace CalendarAppTests
         }
 
        
+    };
+
+    TEST_CLASS(UpdateTaskTests)
+    {
+
+    private:
+        // A pointer to the calendar head for use in all tests within this class.
+        struct years* calendar = NULL;
+
+    public:
+
+        // TEST_METHOD_INITIALIZE runs before each test method.
+        // New calender each time
+        TEST_METHOD_INITIALIZE(Setup)
+        {
+            // Ensure calendar is clean before each test
+            if (calendar != NULL) {
+                freeCalendar(calendar);
+                calendar = NULL;
+            }
+            // Add some initial tasks for a consistent starting point
+            addTask(&calendar, 2025, 12, 25, "Initial Task 1");
+            addTask(&calendar, 2025, 12, 25, "Initial Task 2");
+        }
+
+        // TEST_METHOD_CLEANUP runs after each test method.
+        // This frees all memory allocated during a test to prevent leaks.
+        TEST_METHOD_CLEANUP(Cleanup)
+        {
+            freeCalendar(calendar);
+            calendar = NULL;
+        }
+
+        TEST_METHOD(SuccessfulUpdate)
+        {
+            int result = updateTask(calendar, 2025, 12, 25, 1, "Updated Task 1");
+
+            // Function returns 0
+            Assert::AreEqual(0, result);
+
+            // Function updates task
+            struct days* day_node = getDayNode(calendar, 2025, 12, 25);
+            Assert::IsNotNull(day_node);
+            Assert::AreEqual(0, strcmp(day_node->tasks_head->task_description, "Updated Task 1"));
+        }
+
+        TEST_METHOD(UpdateNonHeadTask)
+        {
+            int result = updateTask(calendar, 2025, 12, 25, 2, "Updated Task 2");
+
+            Assert::AreEqual(0, result);
+
+            struct days* day_node = getDayNode(calendar, 2025, 12, 25);
+            Assert::IsNotNull(day_node);
+            Assert::IsNotNull(day_node->tasks_head->next);
+            Assert::AreEqual(0, strcmp(day_node->tasks_head->next->task_description, "Updated Task 2"));
+        }
+
+        TEST_METHOD(TaskIDNotFound)
+        {
+            int result = updateTask(calendar, 2025, 12, 25, 99, "This should fail");
+
+            // function returns 1
+            Assert::AreEqual(1, result);
+        }
+
+        TEST_METHOD(InvalidDate)
+        {
+            int result = updateTask(calendar, 2025, 13, 25, 1, "This should fail");
+            Assert::AreEqual(1, result);
+        }
+
+        TEST_METHOD(YearNotFound)
+        {
+            // getDayNode should return NULL for a non-existent year, causing updateTask to fail
+            int result = updateTask(calendar, 2026, 1, 1, 1, "This should fail");
+            Assert::AreEqual(1, result);
+        }
     };
 
     TEST_CLASS(TaskDeleteTests)

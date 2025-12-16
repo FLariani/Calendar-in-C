@@ -54,6 +54,7 @@ extern "C" {
     void addTask(struct years** calendar_head, int year, int month, int day, const char* desc);
     struct days* getDayNode(struct years* calendar_head, int year, int month, int day);
     int listTasksForDayNode(struct days* day_node);
+    int updateTask(struct years* calendar_head, int year, int month, int day, int task_id, const char* new_desc);
     int deleteTask(struct years* calendar_head, int year, int month, int day, int task_id);
 
     // search helpers

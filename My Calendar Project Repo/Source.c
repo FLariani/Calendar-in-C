@@ -263,7 +263,7 @@ int updateTask(struct years* calendar_head, int year, int month, int day, int ta
     if (!day_node) {
 
         printf("Invalid date / year not found.\n");
-        return 0;
+        return 1;
     }
 
     // find the node with the matching id
@@ -276,7 +276,7 @@ int updateTask(struct years* calendar_head, int year, int month, int day, int ta
     if (!updateDay) {
 
         printf("Task %d not found on %d-%02d-%02d.\n", task_id, year, month, day);
-        return 0;
+        return 1;
     }
 
     // free the old description
@@ -293,13 +293,13 @@ int updateTask(struct years* calendar_head, int year, int month, int day, int ta
         if (updateDay->task_description) {
             updateDay->task_description[0] = '\0';
         }
-        return 0;
+        return 1;
     }
 
     strcpy_s(updateDay->task_description, desc_len, new_desc);
 
     printf("Updated task %d on %d-%02d-%02d.\n", task_id, year, month, day);
-    return 1;
+    return 0;
 }
 
 // delete a task by task_id from a specific date
@@ -816,7 +816,7 @@ void menu(struct years** calendar_head) {
         printf("6. View all tasks for a month\n");
         printf("7. View all tasks for a year\n");
         printf("8. Show Calendar for a year\n");
-        printf("9. Update task");
+        printf("9. Update task\n");
         printf("0. Save and exit\n");
         printf("Choice: ");
 
