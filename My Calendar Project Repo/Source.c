@@ -527,6 +527,7 @@ void printTasksForMonthPretty(struct years* calendar_head, int year, int month) 
         year_node = year_node->next;
     }
 
+    // checks if there are tasks in this year
     if (!year_node) {
         printf("No data for year %d.\n", year);
         return;
@@ -535,7 +536,7 @@ void printTasksForMonthPretty(struct years* calendar_head, int year, int month) 
     struct months* month_node = &year_node->months[month - 1];
 
     printf("\n=== %s %d ===\n", month_node->month_name, year);
-
+    // flag to track if any tasks were found
     int found_any = 0;
 
     for (int d = 0; d < month_node->num_days; d++) {
@@ -577,13 +578,15 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
         year_node = year_node->next;
     }
 
+    // checks if there are tasks in this year
     if (!year_node) {
+        // notify user if no tasks were found 
         printf("No data for year %d.\n", year);
         return;
     }
 
     printf("\n=== Tasks for %d ===\n", year);
-
+    // flag to track if any tasks were found
     int found_any = 0;
 
     for (int m = 0; m < 12; m++) {
@@ -608,11 +611,14 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
                 // day line: "29 (Saturday): Task A, Task B"
                 printf("%2d (%s): ", day_node->day_number, day_node->day_name);
 
+                // loop through all tasks for this day
                 while (t != NULL) {
                     printf("%s", t->task_description);
+                    // check if there are more tasks
                     if (t->next != NULL) {
                         printf(", ");
                     }
+                    // move to next task
                     t = t->next;
                 }
                 printf("\n");
@@ -621,6 +627,7 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
     }
 
     if (!found_any) {
+        // notify user if no tasks were found
         printf("No tasks stored for %d.\n", year);
     }
 
@@ -637,17 +644,20 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
 int containsIgnoreCase(const char* text, const char* key) {
     if (!text || !key) return 0;
 
+    // gets lengths
     size_t n = strlen(text);
     size_t m = strlen(key);
     if (m == 0) return 1;
     if (m > n) return 0;
 
+    // loops through each possible starting position
     for (size_t i = 0; i <= n - m; i++) {
         size_t j = 0;
         while (j < m) {
             char a = text[i + j];
             char b = key[j];
 
+            // converts uppercase to lowercase for case sensitive comparison
             if (a >= 'A' && a <= 'Z') a = (char)(a - 'A' + 'a');
             if (b >= 'A' && b <= 'Z') b = (char)(b - 'A' + 'a');
 
@@ -672,16 +682,18 @@ void searchTasks(struct years* calendar_head, const char* keyword) {
 
     while (y != NULL) {
         for (int m = 0; m < 12; m++) {
+            // loop through each day in current month
             for (int d = 0; d < y->months[m].num_days; d++) {
-
+                // gets head of task list
                 struct tasks* t = y->months[m].days[d].tasks_head;
                 while (t != NULL) {
                     if (containsIgnoreCase(t->task_description, keyword)) {
+                        // prints results for any found keywords in all tasks
                         if (!found) {
                             printf("\nSearch results for \"%s\":\n", keyword);
                         }
                         found = 1;
-
+                        // prints tasks with their date and description
                         printf(" - %d-%02d-%02d (Task %d): %s\n",
                             y->year_number,
                             y->months[m].month_number,
@@ -760,9 +772,11 @@ int saveTasks(const char* filename, struct years* calendar_head) {
     struct years* current_year = calendar_head;
     while (current_year != NULL) {
 
+        // write the year marker to the file
         fprintf(fp, "[YEAR] %d\n", current_year->year_number);
-
+        // loop through all 12 months in current year
         for (int m = 0; m < 12; m++) {
+            // loop through each day in current month
             for (int d = 0; d < current_year->months[m].num_days; d++) {
 
                 struct tasks* current_task = current_year->months[m].days[d].tasks_head;
@@ -773,7 +787,7 @@ int saveTasks(const char* filename, struct years* calendar_head) {
                         current_year->months[m].month_number,
                         current_year->months[m].days[d].day_number,
                         current_task->task_description);
-
+                    // move to the next task in list
                     current_task = current_task->next;
                 }
             }
@@ -790,28 +804,37 @@ int saveTasks(const char* filename, struct years* calendar_head) {
 // FREE ALL MEMORY
 // =====================
 
+// function to free memory allocated for calendar
 void freeCalendar(struct years* calendar_head) {
 
     struct years* current_year = calendar_head;
+    // loop through each year
     while (current_year != NULL) {
-
+        // loop through all 12 months in current year
         for (int m = 0; m < 12; m++) {
+            // loop through each day in current month
             for (int d = 0; d < current_year->months[m].num_days; d++) {
 
                 struct tasks* current_task = current_year->months[m].days[d].tasks_head;
                 while (current_task != NULL) {
                     struct tasks* next_task = current_task->next;
+                    // free description
                     free(current_task->task_description);
                     free(current_task);
+                    // move to next task
                     current_task = next_task;
                 }
             }
+            // free the memory for the days array for the current month
             free(current_year->months[m].days);
         }
-
+        // free memory of the months array for the current year
         free(current_year->months);
+        // save pointer to next year before freeing current one
         struct years* next_year = current_year->next;
+        // free memory for current year
         free(current_year);
+        // move to the next year in list
         current_year = next_year;
     }
 }
@@ -838,6 +861,7 @@ void menu(struct years** calendar_head) {
         printf("Choice: ");
 
         if (scanf_s("%d", &choice) != 1) {
+            // clear input buffer
             int ch; while ((ch = getchar()) != '\n' && ch != EOF);
             choice = -1;
             continue;
@@ -846,30 +870,36 @@ void menu(struct years** calendar_head) {
         if (choice == 1) {
             int y, m, d;
             char buffer[DESC_LEN];
-
+            // prompts user for year, month, and day
             printf("Enter year month day (e.g. 2025 11 29): ");
             if (scanf_s("%d %d %d", &y, &m, &d) != 3) {
+                // notify user that year, month or day is invalid
                 printf("Invalid date input.\n");
+                // clear input buffer
                 int ch; while ((ch = getchar()) != '\n' && ch != EOF);
                 continue;
             }
 
             int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+            // prompts user for task description
             printf("Enter task description: ");
             if (!fgets(buffer, sizeof(buffer), stdin)) {
                 printf("Error reading description.\n");
                 continue;
             }
-
+            // gets length of description
             size_t len = strlen(buffer);
+            // checks if length is greater than 0 and last character is newline
             if (len > 0 && buffer[len - 1] == '\n') buffer[len - 1] = '\0';
 
             addTask(calendar_head, y, m, d, buffer);
         }
         else if (choice == 2) {
             int y, m;
+            // prompts user for year and month
             printf("Enter year and month (e.g. 2025 11): ");
             if (scanf_s("%d %d", &y, &m) != 2) {
+                // notify user if year or month is invalid
                 printf("Invalid input.\n");
                 int ch; while ((ch = getchar()) != '\n' && ch != EOF);
                 continue;
@@ -879,8 +909,10 @@ void menu(struct years** calendar_head) {
         }
         else if (choice == 3) {
             int y, m, d;
+            // prompts user for year, month, and day
             printf("Enter year month day: ");
             if (scanf_s("%d %d %d", &y, &m, &d) != 3) {
+                // notify user if year, month, or day is invalid
                 printf("Invalid input.\n");
                 int ch; while ((ch = getchar()) != '\n' && ch != EOF);
                 continue;
@@ -891,18 +923,20 @@ void menu(struct years** calendar_head) {
         else if (choice == 4) {
             int y, m, d;
             printf("Enter year month day to delete from (e.g. 2025 11 29): ");
+            // gets year, month, and day from user
             if (scanf_s("%d %d %d", &y, &m, &d) != 3) {
                 printf("Invalid input.\n");
                 int ch; while ((ch = getchar()) != '\n' && ch != EOF);
                 continue;
             }
-
+            // get day node for specific date
             struct days* day_node = getDayNode(*calendar_head, y, m, d);
             if (!day_node || !day_node->tasks_head) {
                 printf("No tasks for %d-%02d-%02d.\n", y, m, d);
                 continue;
             }
 
+            // print all tasks for specific date
             printf("Tasks for %d-%02d-%02d:\n", y, m, d);
             listTasksForDayNode(day_node);
 
@@ -910,23 +944,27 @@ void menu(struct years** calendar_head) {
             printf("Enter the task number to delete: ");
             if (scanf_s("%d", &id) != 1) {
                 printf("Invalid input.\n");
+                // clear input buffer
                 int ch; while ((ch = getchar()) != '\n' && ch != EOF);
                 continue;
             }
-
+            // call function to delete task
             deleteTask(*calendar_head, y, m, d, id);
         }
         else if (choice == 5) {
             char keyword[DESC_LEN];
 
+            // clear input buffer
             int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+            // prompts user for keyword
             printf("Enter keyword to search: ");
             if (!fgets(keyword, sizeof(keyword), stdin)) {
                 printf("Error reading keyword.\n");
                 continue;
             }
-
+            // gets length of keyword
             size_t len = strlen(keyword);
+            // checks if length is greater than 0 and last character is new line
             if (len > 0 && keyword[len - 1] == '\n') keyword[len - 1] = '\0';
 
             searchTasks(*calendar_head, keyword);
@@ -934,8 +972,11 @@ void menu(struct years** calendar_head) {
         else if (choice == 6) {
 
             int y, m;
+
+            // prompts user for year and month
             printf("Enter year and month (e.g. 2025 11): ");
             if (scanf_s("%d %d", &y, &m) != 2) {
+                // notify user if year or month is invalid
                 printf("Invalid input.\n");
                 int ch; while ((ch = getchar()) != '\n' && ch != EOF);
                 continue;
@@ -947,8 +988,11 @@ void menu(struct years** calendar_head) {
         else if (choice == 7) {
 
             int y;
+
+            // prompts user for year
             printf("Enter year (e.g. 2025): ");
             if (scanf_s("%d", &y) != 1) {
+                // notify user if year is invalid
                 printf("Invalid input.\n");
                 int ch; while ((ch = getchar()) != '\n' && ch != EOF);
                 continue;
@@ -959,6 +1003,8 @@ void menu(struct years** calendar_head) {
 
         else if (choice == 8) {
             int y;
+
+            // prompts user for year
             printf("Enter year (e.g. 2025): ");
             if (scanf_s("%d", &y) != 1) {
                 printf("Invalid input.\n");
@@ -1010,6 +1056,7 @@ void menu(struct years** calendar_head) {
             int y, m, d, id;
             char buffer[DESC_LEN];
 
+            // prompts user for year month and day
             printf("Enter year month day to update a task (e.g. 2025 11 29): ");
             if (scanf_s("%d %d %d", &y, &m, &d) != 3) {
 
@@ -1018,6 +1065,7 @@ void menu(struct years** calendar_head) {
                 continue;
             }
 
+            // gets the day node for specific date
             struct days* day_node = getDayNode(*calendar_head, y, m, d);
             if (!day_node || !day_node->tasks_head) {
 
@@ -1025,9 +1073,11 @@ void menu(struct years** calendar_head) {
                 continue;
             }
 
+            // display all tasks for day
             printf("Tasks for %d-%02d-%02d:\n", y, m, d);
             listTasksForDayNode(day_node);
 
+            // prompts user for specific task they want to update
             printf("Enter the task number to update: ");
             if (scanf_s("%d", &id) != 1) {
 
@@ -1036,6 +1086,7 @@ void menu(struct years** calendar_head) {
                 continue;
             }
 
+            // clear input buffer
             int ch; while ((ch = getchar()) != '\n' && ch != EOF);
             printf("Enter the new task description: ");
             if (!fgets(buffer, sizeof(buffer), stdin)) {
@@ -1044,9 +1095,11 @@ void menu(struct years** calendar_head) {
                 continue;
             }
 
+            // gets length of new description
             size_t len = strlen(buffer);
             if (len > 0 && buffer[len - 1] == '\n') buffer[len - 1] = '\0';
 
+            // calls function to update a task
             updateTask(*calendar_head, y, m, d, id, buffer);
             }
         else if (choice == 0) {
