@@ -472,14 +472,12 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
     }
 
     printf("\n");
-
     // left padding for centering
     for (int i = 0; i < offset; i++) {
         printf(" ");
     }
 
     printf("%s %d\n", month_title, year);
-
     printf("_____________________________\n");
     printf("|Su |Mo |Tu |We |Th |Fr |Sa |\n");
     printf("|___|___|___|___|___|___|___|\n|");
