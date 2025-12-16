@@ -301,7 +301,7 @@ int updateTask(struct years* calendar_head, int year, int month, int day, int ta
 
     // invalid task id
     if (!updateDay) {
-        printf("Task %d not found on %d-%02d-%02d.\n", task_id, year, month, day);
+        printf("Task %d not found on %d-%d-%d.\n", task_id, year, month, day);
         return 1;
     }
 
@@ -323,7 +323,7 @@ int updateTask(struct years* calendar_head, int year, int month, int day, int ta
 
     strcpy_s(updateDay->task_description, desc_len, new_desc);
 
-    printf("Updated task %d on %d-%02d-%02d.\n", task_id, year, month, day);
+    printf("Updated task %d on %d-%d-%d.\n", task_id, year, month, day);
     return 0;
 }
 
@@ -340,7 +340,7 @@ int deleteTask(struct years* calendar_head, int year, int month, int day, int ta
 
     // no tasks to delete
     if (!day_node->tasks_head) {
-        printf("No tasks to delete for %d-%02d-%02d.\n", year, month, day);
+        printf("No tasks to delete for %d-%d-%d.\n", year, month, day);
         return 0;
     }
 
@@ -352,7 +352,7 @@ int deleteTask(struct years* calendar_head, int year, int month, int day, int ta
 
     // task id not found
     if (!deleteNode) {
-        printf("Task %d not found on %d-%02d-%02d.\n", task_id, year, month, day);
+        printf("Task %d not found on %d-%d-%d.\n", task_id, year, month, day);
         return 0;
     }
 
@@ -376,7 +376,7 @@ int deleteTask(struct years* calendar_head, int year, int month, int day, int ta
     // keep IDs clean after deletes (avoids gaps like 1,2,4)
     renumberTasks(day_node);
 
-    printf("Deleted task %d from %d-%02d-%02d.\n", task_id, year, month, day);
+    printf("Deleted task %d from %d-%d-%d.\n", task_id, year, month, day);
     return 1;
 }
 
@@ -395,14 +395,14 @@ void printTasksForDay(struct years* calendar_head, int year, int month, int day)
 
     // validate month
     if (!year_node || month < 1 || month > 12) {
-        printf("No tasks for %d-%02d-%02d.\n", year, month, day);
+        printf("No tasks for %d-%d-%d.\n", year, month, day);
         return;
     }
 
     // validate day
     struct months* month_node = &year_node->months[month - 1];
     if (day < 1 || day > month_node->num_days) {
-        printf("No tasks for %d-%02d-%02d.\n", year, month, day);
+        printf("No tasks for %d-%d-%d.\n", year, month, day);
         return;
     }
 
@@ -411,7 +411,7 @@ void printTasksForDay(struct years* calendar_head, int year, int month, int day)
     struct tasks* task_node = day_node->tasks_head;
 
     if (task_node == NULL) {
-        printf("No tasks for %d-%02d-%02d.\n", year, month, day);
+        printf("No tasks for %d-%d-%d.\n", year, month, day);
         return;
     }
 
@@ -458,7 +458,7 @@ void printTasksForMonthPretty(struct years* calendar_head, int year, int month) 
         if (t != NULL) {
             found_any = 1;
 
-            printf("%2d (%s): ", day_node->day_number, day_node->day_name);
+            printf("%d (%s): ", day_node->day_number, day_node->day_name);
 
             // print all tasks comma-separated
             while (t != NULL) {
@@ -520,7 +520,7 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
                     month_printed = 1;
                 }
 
-                printf("%2d (%s): ", day_node->day_number, day_node->day_name);
+                printf("%d (%s): ", day_node->day_number, day_node->day_name);
 
                 // loop through all tasks for this day
                 while (task_node != NULL) {
