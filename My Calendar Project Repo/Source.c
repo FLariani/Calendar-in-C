@@ -613,12 +613,13 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
         struct months* month_node = &year_node->months[m];
         int month_printed = 0;
 
+        //cycles through the days in a given month
         for (int d = 0; d < month_node->num_days; d++) {
 
             struct days* day_node = &month_node->days[d];
-            struct tasks* t = day_node->tasks_head;
+            struct tasks* task_node = day_node->tasks_head;
 
-            if (t != NULL) {
+            if (task_node != NULL) {
                 found_any = 1;
 
                 // only print the month header once
@@ -630,14 +631,14 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
                 printf("%2d (%s): ", day_node->day_number, day_node->day_name);
 
                 // loop through all tasks for this day
-                while (t != NULL) {
-                    printf("%s", t->task_description);
+                while (task_node != NULL) {
+                    printf("%s", task_node->task_description);
                     // check if there are more tasks
-                    if (t->next != NULL) {
+                    if (task_node->next != NULL) {
                         printf(", ");
                     }
                     // move to next task
-                    t = t->next;
+                    task_node = task_node->next;
                 }
                 printf("\n");
             }
@@ -660,26 +661,36 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
 int containsIgnoreCase(const char* text, const char* key) {
     if (!text || !key) return 0;
 
-    // gets lengths
+    // gets lengths of text and user phrase
     size_t n = strlen(text);
     size_t m = strlen(key);
 
-    if (m == 0) return 1;
-    if (m > n) return 0;
+    if (m == 0) {
+        return 1;
+    }
+    if (m > n) {
+        return 0;
+    }
 
     // loops through each possible starting position
     for (size_t i = 0; i <= n - m; i++) {
         size_t j = 0;
 
         while (j < m) {
-            char a = text[i + j];
-            char b = key[j];
+            char character_text = text[i + j];
+            char character_key = key[j];
 
             // manual lowercase conversion so we don't need extra headers
-            if (a >= 'A' && a <= 'Z') a = (char)(a - 'A' + 'a');
-            if (b >= 'A' && b <= 'Z') b = (char)(b - 'A' + 'a');
+            if (character_text >= 'A' && character_text <= 'Z') {
+                character_text = (char)(character_text - 'A' + 'a');
+            }
 
-            if (a != b) break;
+            if (character_key >= 'A' && character_key <= 'Z') {
+                character_key = (char)(character_key - 'A' + 'a');
+            }
+            if (character_text != character_key) {
+                break;
+            }
             j++;
         }
 
@@ -1046,52 +1057,56 @@ void menu(struct years** calendar_head) {
 
             printTasksForYearPretty(*calendar_head, y);
         }
+
         else if (choice == 8) {
-
             int y;
-
-            // prompts user for year
             printf("Enter year (e.g. 2025): ");
-
             if (scanf_s("%d", &y) != 1) {
                 printf("Invalid input.\n");
                 int ch; while ((ch = getchar()) != '\n' && ch != EOF);
                 continue;
             }
-
-            // create/find the year so month calendars can print safely
-            struct years* year_node = findOrAddYear(calendar_head, y);
-            if (!year_node) {
-                printf("Error: Could not create or find calendar for year %d.\n", y);
-                continue;
+            // Calculate the number of digits in the year
+            int calendar_width = 31;
+            int year_digits = 0;
+            int temp_year = y;
+            if (temp_year == 0) {
+                year_digits = 1;
+            }
+            else {
+                while (temp_year != 0) {
+                    temp_year /= 10;
+                    year_digits++;
+                }
             }
 
-            // quick title centering (simple, not perfect, but good enough)
-            int calendar_width = 31;
+            // This will create the year if it's not already loaded.
+            struct years* year_node = findOrAddYear(calendar_head, y);
 
-            // build the title string so we can measure it properly
-            char title[64];
-            sprintf_s(title, sizeof(title), "===Calendar of %d===", y);
+            // Check if the year was created successfully (it could fail on memory allocation).
+            if (!year_node) {
+                printf("Error: Could not create or find calendar for year %d.\n", y);
+                continue; // Go back to the menu
+            }
 
-            int title_len = (int)strlen(title);
-            int offset = (calendar_width - title_len) / 2;
-
-            // fix: same precedence issue as month title
-            if (((calendar_width - title_len) % 2) != 0) {
+            // Calculate total title length
+            int title_len = year_digits;
+            int offset = (calendar_width - title_len - 18) / 2;
+            printf("\n");
+            if (calendar_width - title_len % 2 != 0) {
                 offset--;
             }
 
-            printf("\n");
+            // Print the left padding
             for (int i = 0; i < offset; i++) {
                 printf(" ");
             }
-            printf("%s\n", title);
-
-            // print all 12 months one after the other
-            for (int m = 1; m <= 12; m++) {
+            printf("===Calendar of %d===\n", y);
+            for (int m = 1; m < 13; m++) {
                 printMonthCalendar(*calendar_head, y, m);
             }
         }
+
         else if (choice == 9) {
 
             int y, m, d, id;
