@@ -244,6 +244,53 @@ int listTasksForDayNode(struct days* day_node) {
     }
     return count;
 }
+// update a task's description by its task_id
+int updateTask(struct years* calendar_head, int year, int month, int day, int task_id, const char* new_desc) {
+
+    struct days* day_node = getDayNode(calendar_head, year, month, day);
+
+    // date invalid or year not loaded
+    if (!day_node) {
+
+        printf("Invalid date / year not found.\n");
+        return 0;
+    }
+
+    // find the node with the matching id
+    struct tasks* updateDay = day_node->tasks_head;
+    while (updateDay != NULL && updateDay->task_id != task_id) {
+
+        updateDay = updateDay->next;
+    }
+
+    if (!updateDay) {
+
+        printf("Task %d not found on %d-%02d-%02d.\n", task_id, year, month, day);
+        return 0;
+    }
+
+    // free the old description
+    free(updateDay->task_description);
+
+    // allocate for and copy the new description
+    size_t desc_len = strlen(new_desc) + 1;
+    updateDay->task_description = (char*)malloc(desc_len);
+    if (!updateDay->task_description) {
+
+        printf("Memory allocation failed for new task description.\n");
+        // To be safe, set to an empty string to avoid dangling pointers
+        updateDay->task_description = (char*)malloc(1);
+        if (updateDay->task_description) {
+            updateDay->task_description[0] = '\0';
+        }
+        return 0;
+    }
+
+    strcpy_s(updateDay->task_description, desc_len, new_desc);
+
+    printf("Updated task %d on %d-%02d-%02d.\n", task_id, year, month, day);
+    return 1;
+}
 
 // delete a task by task_id from a specific date
 int deleteTask(struct years* calendar_head, int year, int month, int day, int task_id) {
@@ -761,6 +808,7 @@ void menu(struct years** calendar_head) {
         printf("6. View all tasks for a month\n");
         printf("7. View all tasks for a year\n");
         printf("8. Show Calendar for a year\n");
+        printf("9. Update task");
         printf("0. Save and exit\n");
         printf("Choice: ");
 
@@ -932,7 +980,50 @@ void menu(struct years** calendar_head) {
                 printMonthCalendar(*calendar_head, y, m);
             }
         }
+        else if (choice == 9) {
 
+            int y, m, d, id;
+            char buffer[DESC_LEN];
+
+            printf("Enter year month day to update a task (e.g. 2025 11 29): ");
+            if (scanf_s("%d %d %d", &y, &m, &d) != 3) {
+
+                printf("Invalid date input.\n");
+                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+                continue;
+            }
+
+            struct days* day_node = getDayNode(*calendar_head, y, m, d);
+            if (!day_node || !day_node->tasks_head) {
+
+                printf("No tasks for %d-%02d-%02d.\n", y, m, d);
+                continue;
+            }
+
+            printf("Tasks for %d-%02d-%02d:\n", y, m, d);
+            listTasksForDayNode(day_node);
+
+            printf("Enter the task number to update: ");
+            if (scanf_s("%d", &id) != 1) {
+
+                printf("Invalid input.\n");
+                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+                continue;
+            }
+
+            int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+            printf("Enter the new task description: ");
+            if (!fgets(buffer, sizeof(buffer), stdin)) {
+
+                printf("Error reading description.\n");
+                continue;
+            }
+
+            size_t len = strlen(buffer);
+            if (len > 0 && buffer[len - 1] == '\n') buffer[len - 1] = '\0';
+
+            updateTask(*calendar_head, y, m, d, id, buffer);
+            }
         else if (choice == 0) {
             printf("Saving and exiting...\n");
         }
