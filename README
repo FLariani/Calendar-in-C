@@ -7,13 +7,18 @@ lists, and file I/O.
 
 ## Features
 - Add tasks to specific dates
-- View a monthly calendar with task indicators
-- View tasks for a specific day
-- View all tasks for a month (compact view)
-- View all tasks for a year (compact view)
-- Delete tasks
-- Search tasks by keyword
-- Save and load tasks from a text file
+- Delete tasks by selecting a date and task ID
+- Update a task description by selecting a date and task ID
+- Search tasks by keyword (case-insensitive)
+- Display a month calendar in a grid, marking days with tasks using `*`
+- Print tasks for a specific day
+- Print all tasks for a month (compact view)
+- Print all tasks for a year (compact view)
+- Save and load tasks from a text file (`tasks.txt`)
+- Dynamic memory management (malloc/free) + linked lists for tasks
+
+## File Storage
+Tasks are stored in a simple readable format so it’s easy to debug/edit:
 
 ## Technologies Used
 - C (ANSI C)
@@ -37,46 +42,43 @@ lists, and file I/O.
 ## Notes
 - Tasks are stored in a human-readable text file.
 - Task IDs are automatically managed by the program.
-- The project focuses on correctness and clarity over UI complexity.
 
 ## Authors
 - Farah Lariani
 - Damian Wilson
 - Sierra Jamieson
 
-## Team Responsibilities
+## Team Contributions
 
-### Farah Lariani (Core logic + editor)
-- Implement core calendar data structures (years/months/days/tasks)
-- Implement task operations:
-  - Add task
-  - Delete task (select date + task to delete)
-  - Search tasks (keyword search)
-- Implement file operations:
-  - Save tasks to file
-  - Load tasks from file
-- Ensure memory management is correct (malloc/free), no leaks
-- Write unit tests for core logic (add/delete/search/file I/O)
+### Farah Lariani
+- Implemented the core calendar data model using nested structs  
+  (Year -> Month array -> Day array -> Task linked list)
+- Led implementation of core functionality:
+  - Adding tasks
+  - Deleting tasks
+  - Searching tasks by keyword
+  - Saving and loading tasks from a text file
+- Integrated all features into a menu-driven application
+- Ensured correct use of dynamic memory allocation and deallocation throughout the project
+- Wrote and coordinated unit testing for core logic and edge cases
+- Acted as editor and integrator to ensure consistency across all components
 
-**Editor for Farah’s work:** Damian Wilson
+### Damian Wilson
+- Contributed to the initial struct formatting and helped shape the logical separation
+  of task nodes per day within the calendar structure
+- Implemented the task update functionality (editing an existing task’s description)
+- Implemented and assisted with the memory cleanup / free-nodes logic
+- Integrated all features into a menu-driven application
+- Designed and refined the calendar grid UI for month and year views
+- Wrote and coordinated unit testing for core logic and edge cases
+- Reviewed and edited core logic implementations for clarity and structure
+- Acted as editor and integrator to ensure consistency across all components
 
----
-
-### Damian Wilson (UI + Core logic + Editor)
-- Implement the calendar month grid UI (ASCII grid display for month/year)
-- Review and edit Farah’s core logic functions (delete/search/file I/O) for clarity, bugs, and style consistency
-- Help verify output formatting aligns with assignment requirements
-- Ensure memory management is correct (malloc/free), no leaks
-- Write unit tests for core logic (add/delete/search/file I/O)
-
----
-
-### Sierra (Task Display UI)
-- Implement “task printing UI” features:
-  - Print tasks for a specific day
-  - Print tasks for a month (compact view)
-  - Print tasks for a year (compact view)
-- Focus on readability + consistent formatting
-
-**Editor for Sierra’s work:** Farah Lariani
-
+### Sierra Jamieson
+- Implemented task-printing UI features:
+  - Viewing tasks for a specific day
+  - Compact month task view
+  - Compact year task view
+- Focused on readable, user-friendly output formatting
+- Integrated all features into a menu-driven application
+- Assisted with UI consistency and presentation
