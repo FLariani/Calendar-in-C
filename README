@@ -1,0 +1,82 @@
+# Calendar Application (C)
+
+A console-based calendar and task management application written in C.
+This project was developed for a college-level programming course and
+demonstrates structured programming, dynamic memory allocation, linked
+lists, and file I/O.
+
+## Features
+- Add tasks to specific dates
+- View a monthly calendar with task indicators
+- View tasks for a specific day
+- View all tasks for a month (compact view)
+- View all tasks for a year (compact view)
+- Delete tasks
+- Search tasks by keyword
+- Save and load tasks from a text file
+
+## Technologies Used
+- C (ANSI C)
+- Dynamic memory allocation (malloc/free)
+- Linked lists (doubly linked lists)
+- File I/O
+- Visual Studio (Windows)
+
+## File Structure
+- `main.c` (or `calendar.c`) – core application logic
+- `calendar.h` – structures and function declarations
+- `tasks.txt` – saved task data
+- `CalendarAppTests` – Native unit tests
+
+## How to Run
+1. Open the solution in Visual Studio
+2. Build the project
+3. Run the executable
+4. Follow the on-screen menu
+
+## Notes
+- Tasks are stored in a human-readable text file.
+- Task IDs are automatically managed by the program.
+- The project focuses on correctness and clarity over UI complexity.
+
+## Authors
+- Farah Lariani
+- Damian Wilson
+- Sierra Jamieson
+
+## Team Responsibilities
+
+### Farah Lariani (Core logic + editor)
+- Implement core calendar data structures (years/months/days/tasks)
+- Implement task operations:
+  - Add task
+  - Delete task (select date + task to delete)
+  - Search tasks (keyword search)
+- Implement file operations:
+  - Save tasks to file
+  - Load tasks from file
+- Ensure memory management is correct (malloc/free), no leaks
+- Write unit tests for core logic (add/delete/search/file I/O)
+
+**Editor for Farah’s work:** Damian Wilson
+
+---
+
+### Damian Wilson (UI + Core logic + Editor)
+- Implement the calendar month grid UI (ASCII grid display for month/year)
+- Review and edit Farah’s core logic functions (delete/search/file I/O) for clarity, bugs, and style consistency
+- Help verify output formatting aligns with assignment requirements
+- Ensure memory management is correct (malloc/free), no leaks
+- Write unit tests for core logic (add/delete/search/file I/O)
+
+---
+
+### Sierra (Task Display UI)
+- Implement “task printing UI” features:
+  - Print tasks for a specific day
+  - Print tasks for a month (compact view)
+  - Print tasks for a year (compact view)
+- Focus on readability + consistent formatting
+
+**Editor for Sierra’s work:** Farah Lariani
+
