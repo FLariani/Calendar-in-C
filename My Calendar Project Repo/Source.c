@@ -411,7 +411,6 @@ void printTasksForDay(struct years* calendar_head, int year, int month, int day)
     }
 }
 
-// FIXED printMonthCalendar: always use ONE year pointer (so stars are accurate)
 void printMonthCalendar(struct years* calendar_head, int year, int month) {
 
     if (month < 1 || month > 12) {
@@ -419,7 +418,7 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
         return;
     }
 
-    // Important fix: use the same year node for title + task checks
+    // use the same year node for title + task checks
     struct years* year_node = findOrAddYear(&calendar_head, year);
     if (!year_node) {
         printf("Error accessing year.\n");
@@ -512,7 +511,7 @@ void printMonthCalendar(struct years* calendar_head, int year, int month) {
     }
 
     printf("|___|___|___|___|___|___|___|\n");
-    printf("\n* = day has one or more tasks.\n\n");
+    printf("\n* = day has one or more tasks.\n");
 }
 void printTasksForMonthPretty(struct years* calendar_head, int year, int month) {
 
