@@ -1,0 +1,84 @@
+# Calendar Application (C)
+
+A console-based calendar and task management application written in C.
+This project was developed for a college-level programming course and
+demonstrates structured programming, dynamic memory allocation, linked
+lists, and file I/O.
+
+## Features
+- Add tasks to specific dates
+- Delete tasks by selecting a date and task ID
+- Update a task description by selecting a date and task ID
+- Search tasks by keyword (case-insensitive)
+- Display a month calendar in a grid, marking days with tasks using `*`
+- Print tasks for a specific day
+- Print all tasks for a month (compact view)
+- Print all tasks for a year (compact view)
+- Save and load tasks from a text file (`tasks.txt`)
+- Dynamic memory management (malloc/free) + linked lists for tasks
+
+## File Storage
+Tasks are stored in a simple readable format so it’s easy to debug/edit:
+
+## Technologies Used
+- C (ANSI C)
+- Dynamic memory allocation (malloc/free)
+- Linked lists (doubly linked lists)
+- File I/O
+- Visual Studio (Windows)
+
+## File Structure
+- `main.c` (or `calendar.c`) – core application logic
+- `calendar.h` – structures and function declarations
+- `tasks.txt` – saved task data
+- `CalendarAppTests` – Native unit tests
+
+## How to Run
+1. Open the solution in Visual Studio
+2. Build the project
+3. Run the executable
+4. Follow the on-screen menu
+
+## Notes
+- Tasks are stored in a human-readable text file.
+- Task IDs are automatically managed by the program.
+
+## Authors
+- Farah Lariani
+- Damian Wilson
+- Sierra Jamieson
+
+## Team Contributions
+
+### Farah Lariani
+- Implemented the core calendar data model using nested structs  
+  (Year -> Month array -> Day array -> Task linked list)
+- Led implementation of core functionality:
+  - Adding tasks
+  - Deleting tasks
+  - Searching tasks by keyword
+  - Saving and loading tasks from a text file
+- Integrated all features into a menu-driven application
+- Ensured correct use of dynamic memory allocation and deallocation throughout the project
+- Wrote and coordinated unit testing for core logic and edge cases
+- Acted as editor and integrator to ensure consistency across all components
+
+### Damian Wilson
+- Contributed to the initial struct formatting and helped shape the logical separation
+  of task nodes per day within the calendar structure
+- Implemented the task update functionality (editing an existing task’s description)
+- Implemented and assisted with the memory cleanup / free-nodes logic
+- Integrated all features into a menu-driven application
+- Designed and refined the calendar grid UI for month and year views
+- Wrote and coordinated unit testing for core logic and edge cases
+- Reviewed and edited core logic implementations for clarity and structure
+- Acted as editor and integrator to ensure consistency across all components
+
+### Sierra Jamieson
+- Implemented task-printing UI features:
+  - Viewing tasks for a specific day
+  - Compact month task view
+  - Compact year task view
+- Focused on readable, user-friendly output formatting
+- Integrated all features into a menu-driven application
+- Assisted with UI consistency and presentation
