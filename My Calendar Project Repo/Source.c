@@ -424,114 +424,6 @@ void printTasksForDay(struct years* calendar_head, int year, int month, int day)
     }
 }
 
-// prints a month in an ASCII grid, and marks days with tasks using '*'
-void printMonthCalendar(struct years* calendar_head, int year, int month) {
-
-    if (month < 1 || month > 12) {
-        printf("Invalid month.\n");
-        return;
-    }
-
-    // use the same year node for title + task checks (creates year if missing)
-    struct years* year_node = findOrAddYear(&calendar_head, year);
-    if (!year_node) {
-        printf("Error accessing year.\n");
-        return;
-    }
-
-    int nDays = daysInMonth(year, month);
-    int firstWeekday = dayOfWeek(year, month, 1);
-
-    const char* month_title = year_node->months[month - 1].month_name;
-
-    // this width is just used for centering the title
-    const int calendar_width = 31;
-
-    // calculate the number of digits in the year (for title length)
-    int year_digits = 0;
-    int temp_year = year;
-    if (temp_year == 0) {
-        year_digits = 1;
-    }
-    else {
-        while (temp_year != 0) {
-            temp_year /= 10;
-            year_digits++;
-        }
-    }
-
-    // total title length: "Month" + space + "Year"
-    int title_len = (int)strlen(month_title) + 1 + year_digits;
-
-    // offset is how many spaces to print before the title to center it
-    int offset = (calendar_width - title_len) / 2;
-
-    // fix: % runs before -, so we need parentheses or centering is off
-    if (((calendar_width - title_len) % 2) != 0) {
-        offset--;
-    }
-
-    printf("\n");
-    // left padding for centering
-    for (int i = 0; i < offset; i++) {
-        printf(" ");
-    }
-
-    printf("%s %d\n", month_title, year);
-    printf("_____________________________\n");
-    printf("|Su |Mo |Tu |We |Th |Fr |Sa |\n");
-    printf("|___|___|___|___|___|___|___|\n|");
-
-    // leading empty cells before day 1
-    for (int i = 0; i < firstWeekday; i++) {
-        printf("   |");
-    }
-
-    // print each day cell
-    for (int d = 1; d <= nDays; d++) {
-
-        // mark with * if that day has at least one task
-        int has_task = (year_node->months[month - 1].days[d - 1].tasks_head != NULL);
-
-        // each cell is 3 chars wide (plus the '|')
-        if (has_task && d < 10) {
-            printf("%1d* ", d);
-        }
-        else if (has_task) {
-            printf("%2d*", d);
-        }
-        else if (!has_task && d < 10) {
-            printf("%1d  ", d);
-        }
-        else {
-            printf("%2d ", d);
-        }
-
-        // end of week (Saturday) -> newline + row line
-        if ((firstWeekday + d - 1) % 7 == 6) {
-            printf("|\n");
-            if (d < nDays) {
-                printf("|___|___|___|___|___|___|___|\n|");
-            }
-        }
-        else {
-            printf("|");
-        }
-    }
-
-    // trailing empty cells to finish last row cleanly
-    int lastDayWeekday = (firstWeekday + nDays - 1) % 7;
-    if (lastDayWeekday != 6) {
-        for (int i = lastDayWeekday; i < 6; i++) {
-            printf("   |");
-        }
-        printf("\n");
-    }
-
-    printf("|___|___|___|___|___|___|___|\n");
-    printf("\n* = day has one or more tasks.\n");
-}
-
 // compact month view: prints only days with tasks, and puts tasks on one line
 void printTasksForMonthPretty(struct years* calendar_head, int year, int month) {
 
@@ -652,6 +544,116 @@ void printTasksForYearPretty(struct years* calendar_head, int year) {
 
     printf("\n");
 }
+
+// prints a month in an ASCII grid, and marks days with tasks using '*'
+void printMonthCalendar(struct years* calendar_head, int year, int month) {
+
+    if (month < 1 || month > 12) {
+        printf("Invalid month.\n");
+        return;
+    }
+
+    // use the same year node for title + task checks (creates year if missing)
+    struct years* year_node = findOrAddYear(&calendar_head, year);
+    if (!year_node) {
+        printf("Error accessing year.\n");
+        return;
+    }
+
+    int nDays = daysInMonth(year, month);
+    int firstWeekday = dayOfWeek(year, month, 1);
+
+    const char* month_title = year_node->months[month - 1].month_name;
+
+    // this width is just used for centering the title
+    const int calendar_width = 31;
+
+    // calculate the number of digits in the year (for title length)
+    int year_digits = 0;
+    int temp_year = year;
+    if (temp_year == 0) {
+        year_digits = 1;
+    }
+    else {
+        while (temp_year != 0) {
+            temp_year /= 10;
+            year_digits++;
+        }
+    }
+
+    // total title length: "Month" + space + "Year"
+    int title_len = (int)strlen(month_title) + 1 + year_digits;
+
+    // offset is how many spaces to print before the title to center it
+    int offset = (calendar_width - title_len) / 2;
+
+    // fix: % runs before -, so we need parentheses or centering is off
+    if (((calendar_width - title_len) % 2) != 0) {
+        offset--;
+    }
+
+    printf("\n");
+    // left padding for centering
+    for (int i = 0; i < offset; i++) {
+        printf(" ");
+    }
+
+    printf("%s %d\n", month_title, year);
+    printf("_____________________________\n");
+    printf("|Su |Mo |Tu |We |Th |Fr |Sa |\n");
+    printf("|___|___|___|___|___|___|___|\n|");
+
+    // leading empty cells before day 1
+    for (int i = 0; i < firstWeekday; i++) {
+        printf("   |");
+    }
+
+    // print each day cell
+    for (int d = 1; d <= nDays; d++) {
+
+        // mark with * if that day has at least one task
+        int has_task = (year_node->months[month - 1].days[d - 1].tasks_head != NULL);
+
+        // each cell is 3 chars wide (plus the '|')
+        if (has_task && d < 10) {
+            printf("%1d* ", d);
+        }
+        else if (has_task) {
+            printf("%2d*", d);
+        }
+        else if (!has_task && d < 10) {
+            printf("%1d  ", d);
+        }
+        else {
+            printf("%2d ", d);
+        }
+
+        // end of week (Saturday) -> newline + row line
+        if ((firstWeekday + d - 1) % 7 == 6) {
+            printf("|\n");
+            if (d < nDays) {
+                printf("|___|___|___|___|___|___|___|\n|");
+            }
+        }
+        else {
+            printf("|");
+        }
+    }
+
+    // trailing empty cells to finish last row cleanly
+    int lastDayWeekday = (firstWeekday + nDays - 1) % 7;
+    if (lastDayWeekday != 6) {
+        for (int i = lastDayWeekday; i < 6; i++) {
+            printf("   |");
+        }
+        printf("\n");
+    }
+
+    printf("|___|___|___|___|___|___|___|\n");
+    printf("\n* = day has one or more tasks.\n");
+}
+
+
 
 // =====================
 // SEARCH FEATURE
@@ -896,14 +898,14 @@ void menu(struct years** calendar_head) {
     do {
         printf("\n=== Simple Calendar ===\n");
         printf("1. Add task\n");
-        printf("2. Show calendar for a month\n");
-        printf("3. View tasks for a specific day\n");
-        printf("4. Delete a task\n");
-        printf("5. Search tasks\n");
+        printf("2. Update task\n");
+        printf("3. Delete a task\n");
+        printf("4. Search tasks\n");
+        printf("5. View tasks for a specific day\n");
         printf("6. View all tasks for a month\n");
         printf("7. View all tasks for a year\n");
-        printf("8. Show Calendar for a year\n");
-        printf("9. Update task\n");
+        printf("8. Show calendar for a month\n");
+        printf("9. Show Calendar for a year\n");
         printf("0. Save and exit\n");
         printf("Choice: ");
 
@@ -915,7 +917,7 @@ void menu(struct years** calendar_head) {
             continue;
         }
 
-        if (choice == 1) {
+        if (choice == 1) { 
 
             int y, m, d;
             char buffer[DESC_LEN];
@@ -945,37 +947,54 @@ void menu(struct years** calendar_head) {
 
             addTask(calendar_head, y, m, d, buffer);
         }
-        else if (choice == 2) {
+        else if (choice == 2) { 
+            int y, m, d, id;
+            char buffer[DESC_LEN];
 
-            int y, m;
-            // prompts user for year and month
-            printf("Enter year and month (e.g. 2025 11): ");
+            // prompts user for year month and day
+            printf("Enter year month day to update a task (e.g. 2025 11 29): ");
+            if (scanf_s("%d %d %d", &y, &m, &d) != 3) {
+                printf("Invalid date input.\n");
+                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+                continue;
+            }
 
-            if (scanf_s("%d %d", &y, &m) != 2) {
-                // notify user if year or month is invalid
+            // gets the day node for specific date
+            struct days* day_node = getDayNode(*calendar_head, y, m, d);
+            if (!day_node || !day_node->tasks_head) {
+                printf("No tasks for %d-%02d-%02d.\n", y, m, d);
+                continue;
+            }
+
+            // display all tasks for day
+            printf("Tasks for %d-%02d-%02d:\n", y, m, d);
+            listTasksForDayNode(day_node);
+
+            // prompts user for specific task they want to update
+            printf("Enter the task number to update: ");
+            if (scanf_s("%d", &id) != 1) {
                 printf("Invalid input.\n");
                 int ch; while ((ch = getchar()) != '\n' && ch != EOF);
                 continue;
             }
 
-            printMonthCalendar(*calendar_head, y, m);
+            // clear buffer so fgets works
+            int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+
+            printf("Enter the new task description: ");
+            if (!fgets(buffer, sizeof(buffer), stdin)) {
+                printf("Error reading description.\n");
+                continue;
+            }
+
+            // gets length of new description
+            size_t len = strlen(buffer);
+            if (len > 0 && buffer[len - 1] == '\n') buffer[len - 1] = '\0';
+
+            // calls function to update a task
+            updateTask(*calendar_head, y, m, d, id, buffer);
         }
         else if (choice == 3) {
-
-            int y, m, d;
-            // prompts user for year, month, and day
-            printf("Enter year month day: ");
-
-            if (scanf_s("%d %d %d", &y, &m, &d) != 3) {
-                // notify user if year, month, or day is invalid
-                printf("Invalid input.\n");
-                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
-                continue;
-            }
-
-            printTasksForDay(*calendar_head, y, m, d);
-        }
-        else if (choice == 4) {
 
             int y, m, d;
 
@@ -1008,7 +1027,7 @@ void menu(struct years** calendar_head) {
             // call function to delete task
             deleteTask(*calendar_head, y, m, d, id);
         }
-        else if (choice == 5) {
+        else if (choice == 4) {
 
             char keyword[DESC_LEN];
 
@@ -1027,7 +1046,22 @@ void menu(struct years** calendar_head) {
 
             searchTasks(*calendar_head, keyword);
         }
-        else if (choice == 6) {
+        else if (choice == 5) { 
+
+            int y, m, d;
+            // prompts user for year, month, and day
+            printf("Enter year month day: ");
+
+            if (scanf_s("%d %d %d", &y, &m, &d) != 3) {
+                // notify user if year, month, or day is invalid
+                printf("Invalid input.\n");
+                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+                continue;
+            }
+
+            printTasksForDay(*calendar_head, y, m, d);
+        }
+        else if (choice == 6) { 
 
             int y, m;
 
@@ -1042,7 +1076,7 @@ void menu(struct years** calendar_head) {
 
             printTasksForMonthPretty(*calendar_head, y, m);
         }
-        else if (choice == 7) {
+        else if (choice == 7) { 
 
             int y;
 
@@ -1058,7 +1092,24 @@ void menu(struct years** calendar_head) {
             printTasksForYearPretty(*calendar_head, y);
         }
 
-        else if (choice == 8) {
+        else if (choice == 8) { 
+
+            int y, m;
+            // prompts user for year and month
+            printf("Enter year and month (e.g. 2025 11): ");
+
+            if (scanf_s("%d %d", &y, &m) != 2) {
+                // notify user if year or month is invalid
+                printf("Invalid input.\n");
+                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
+                continue;
+            }
+
+            printMonthCalendar(*calendar_head, y, m);
+        }
+
+        else if (choice == 9) { 
+
             int y;
             printf("Enter year (e.g. 2025): ");
             if (scanf_s("%d", &y) != 1) {
@@ -1105,55 +1156,7 @@ void menu(struct years** calendar_head) {
             for (int m = 1; m < 13; m++) {
                 printMonthCalendar(*calendar_head, y, m);
             }
-        }
-
-        else if (choice == 9) {
-
-            int y, m, d, id;
-            char buffer[DESC_LEN];
-
-            // prompts user for year month and day
-            printf("Enter year month day to update a task (e.g. 2025 11 29): ");
-            if (scanf_s("%d %d %d", &y, &m, &d) != 3) {
-                printf("Invalid date input.\n");
-                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
-                continue;
-            }
-
-            // gets the day node for specific date
-            struct days* day_node = getDayNode(*calendar_head, y, m, d);
-            if (!day_node || !day_node->tasks_head) {
-                printf("No tasks for %d-%02d-%02d.\n", y, m, d);
-                continue;
-            }
-
-            // display all tasks for day
-            printf("Tasks for %d-%02d-%02d:\n", y, m, d);
-            listTasksForDayNode(day_node);
-
-            // prompts user for specific task they want to update
-            printf("Enter the task number to update: ");
-            if (scanf_s("%d", &id) != 1) {
-                printf("Invalid input.\n");
-                int ch; while ((ch = getchar()) != '\n' && ch != EOF);
-                continue;
-            }
-
-            // clear buffer so fgets works
-            int ch; while ((ch = getchar()) != '\n' && ch != EOF);
-
-            printf("Enter the new task description: ");
-            if (!fgets(buffer, sizeof(buffer), stdin)) {
-                printf("Error reading description.\n");
-                continue;
-            }
-
-            // gets length of new description
-            size_t len = strlen(buffer);
-            if (len > 0 && buffer[len - 1] == '\n') buffer[len - 1] = '\0';
-
-            // calls function to update a task
-            updateTask(*calendar_head, y, m, d, id, buffer);
+            
         }
         else if (choice == 0) {
             printf("Saving and exiting...\n");
